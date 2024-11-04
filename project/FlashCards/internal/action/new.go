@@ -9,9 +9,12 @@ import (
 type FlashCardAction interface {
 	AddFlashCard(card models.Flashcard, cards *[]models.Flashcard) string
 	RemoveCard(reader *bufio.Reader, cards *[]models.Flashcard) string
-	ImportCard(cards *[]models.Flashcard) error
-	ExportCard(cards *[]models.Flashcard) (int, error)
-	Ask()
+	ImportCard(name string, cards *[]models.Flashcard) (int, error)
+	ExportCard(dir string, cards *[]models.Flashcard) (int, error)
+	Ask(timeAsk int, cards *[]models.Flashcard)
+	Log(log *[]string)
+	HardestCard()
+	ResetStats()
 }
 
 func New() FlashCardAction {

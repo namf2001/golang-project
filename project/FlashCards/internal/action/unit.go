@@ -34,17 +34,18 @@ func NewFlashcard(reader *bufio.Reader, cards *[]models.Flashcard) models.Flashc
 	}
 }
 
-func ReadFlashcard(flashcards []models.Flashcard, reader *bufio.Reader) {
+func ReadFlashcard(timeAsk int, cards *[]models.Flashcard, reader *bufio.Reader) {
 	var answer string
-	for _, flashcard := range flashcards {
-		fmt.Printf("Print the definition of \"%s\":\n", flashcard.Term)
+	for i := 0; i < timeAsk; i++ {
+		card := (*cards)[i%len(*cards)]
+		fmt.Printf("Print the definition of \"%s\":\n", card.Term)
 		answer, _ = reader.ReadString('\n')
 		answer = strings.TrimSpace(answer)
-		if strings.TrimSpace(flashcard.Definition) != answer {
-			if index, ok := CheckDefinition(&flashcards, answer); ok {
-				fmt.Printf("Wrong. The right answer is \"%s\", but your definition is correct for \"%s\".\n", flashcard.Definition, flashcards[index].Term)
+		if strings.TrimSpace(card.Definition) != answer {
+			if index, ok := CheckDefinition(cards, answer); ok {
+				fmt.Printf("Wrong. The right answer is \"%s\", but your definition is correct for \"%s\".\n", card.Definition, (*cards)[index].Term)
 			} else {
-				fmt.Printf("Wrong. The right answer is \"%s\".\n", flashcard.Definition)
+				fmt.Printf("Wrong. The right answer is \"%s\".\n", card.Definition)
 			}
 		} else {
 			fmt.Println("Correct!")
