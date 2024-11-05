@@ -6,70 +6,59 @@ import (
 	"os"
 	"strconv"
 
-	"golang-project/project/FlashCards/internal/action"
 	"golang-project/project/FlashCards/internal/models"
 )
 
 func main() {
-	cardAction := action.New()
 	reader := bufio.NewReader(os.Stdin)
-	var cards []models.Flashcard
-	var log []string
+	cardCollection := models.Flashcards{}
+	log := models.Log{}
 
 	for {
-		command := action.Input(reader, "Input the action (add, remove, import, export, ask, exit):")
+		// Display the menu
+		// 1. Add a flashcard
+		// 2. Remove a flashcard
+		// 3. Import flashcards from a file
+		// 4. Export flashcards to a file
+		// 5. Ask flashcards
+		// 6. Log
+		// 7. Hardest card
+		// 8. Reset stats
+		// 9. Exit
+		command := log.Input(reader, "Input the action (add, remove, import, export, ask, exit, log, hardest card, reset stats):")
 		switch command {
 		case "add":
-			card := action.NewFlashcard(reader, &cards)
-			res := cardAction.AddFlashCard(card, &cards)
-			fmt.Println(res)
-			log = append(log, res)
+			card := cardCollection.ValidateCard(&log)
+			cardCollection.Add(card, &log)
 		case "remove":
-			var res = cardAction.RemoveCard(reader, &cards)
-			fmt.Println(res)
-			log = append(log, res)
+			term := log.Input(reader, "Which card?:")
+			cardCollection.Remove(term, &log)
 		case "import":
-			name := action.Input(reader, "File name:")
-			total, err := cardAction.ImportCard(name, &cards)
-			if err != nil {
-				fmt.Println(err)
-				log = append(log, err.Error())
-				log = append(log, err.Error())
-			} else {
-				res := fmt.Sprintf("%d cards have been loaded.\n", total)
-				fmt.Println(res)
-				log = append(log, res)
-				log = append(log, err.Error())
-			}
+			name := log.Input(reader, "File name:")
+			cardCollection.Import(name, &log)
 		case "export":
-			dir := action.Input(reader, "File name:")
-			total, err := cardAction.ExportCard(dir, &cards)
-			if err != nil {
-				fmt.Println(err)
-				log = append(log, err.Error())
-			} else {
-				res := fmt.Sprintf("%d cards have been saved.\n", total)
-				fmt.Println(res)
-				log = append(log, res)
-			}
+			dir := log.Input(reader, "File name:")
+			cardCollection.Export(dir, &log)
 		case "ask":
-			timeAskStr := action.Input(reader, "How many times to ask?")
+			timeAskStr := log.Input(reader, "How many times to ask:")
 			timeAsk, err := strconv.Atoi(timeAskStr)
 			if err != nil {
-				fmt.Println("Invalid number")
-				log = append(log, "Invalid number")
+				fmt.Println("Invalid number, please enter a valid integer.")
 				continue
 			}
-			cardAction.Ask(timeAsk, &cards)
+			cardCollection.Ask(timeAsk, &log)
 		case "log":
-			cardAction.Log(&log)
+			dir := log.Input(reader, "File name:")
+			log.Export(dir)
 		case "hardest card":
-			cardAction.HardestCard()
-		case "reset stats":
-			cardAction.ResetStats()
+			cardCollection.HardestCard(&log)
+		case "reset status":
+			cardCollection.ResetStats(&log)
 		case "exit":
-			fmt.Printf("Bye bye!")
+			fmt.Println("Bye bye!")
 			return
+		default:
+			fmt.Println("Invalid command, please enter a valid command.")
 		}
 	}
 }
