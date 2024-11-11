@@ -42,12 +42,12 @@ func (a *Applicants) InsertFile(fileName string) {
 		line := scanner.Text()
 		applicant := strings.Fields(line)
 
-		firstName := applicant[0]
-		lastName := applicant[1]
-		GPA, _ := strconv.ParseFloat(applicant[2], 64)
-		department := applicant[3:]
-
 		if len(applicant) >= MaxColumn {
+			firstName := applicant[0]
+			lastName := applicant[1]
+			GPA, _ := strconv.ParseFloat(applicant[2], 64)
+			department := applicant[3:]
+
 			applicant := Applicant{
 				FirstName:  firstName,
 				LastName:   lastName,
@@ -62,6 +62,7 @@ func (a *Applicants) InsertFile(fileName string) {
 	a.Applicants = applicants
 }
 
+// RemoveApplicant is a method that remove an applicant from the list of applicants
 func (a *Applicants) RemoveApplicant(index int) {
 	a.Applicants = append(a.Applicants[:index], a.Applicants[index+1:]...)
 }
@@ -70,7 +71,7 @@ func (a *Applicants) RemoveApplicant(index int) {
 func (a *Applicants) DepartmentClassification(departmentName string, top int) Applicants {
 	var applicants []Applicant
 	for _, applicant := range a.Applicants {
-		if applicant.Department[top] == departmentName {
+		if top < len(applicant.Department) && applicant.Department[top] == departmentName {
 			applicants = append(applicants, applicant)
 		}
 	}
@@ -93,17 +94,15 @@ func (a *Applicants) SortByGPA() {
 
 // GetAllDepartment is a method that get all department in the list of applicants
 func (a *Applicants) GetAllDepartment() []string {
-	var departments []string
-	departmentDOT := strings.Join(departments, ",")
-
+	departmentMap := make(map[string]struct{})
 	for _, applicant := range a.Applicants {
 		for _, department := range applicant.Department {
-			if !strings.Contains(departmentDOT, department) {
-				departmentDOT += department + ","
-				departments = append(departments, department)
-			}
+			departmentMap[department] = struct{}{}
 		}
 	}
-
+	departments := make([]string, 0, len(departmentMap))
+	for department := range departmentMap {
+		departments = append(departments, department)
+	}
 	return departments
 }

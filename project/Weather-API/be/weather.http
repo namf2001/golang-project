@@ -1,4 +1,0 @@
-### GET request to example server
-GET localhost:8080/api/weather?local=London?startdate=2024-10-24?enddate=2024-10-31
-
-###
